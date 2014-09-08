@@ -10,6 +10,7 @@
 #define kDTOAuthMissingTokenError 2
 #define kDTOAuthUnexpectedHTTPResponseError 3
 #define kDTOAuthMissingCallbackError 4
+#define kDTOAuthVerificationFailed 5
 
 typedef NS_ENUM(NSUInteger, OAuthVersion) {
     OAuthVersion10,
@@ -32,6 +33,12 @@ typedef NS_ENUM(NSUInteger, OAuthVersion) {
  receive the consumer key and consumer secret.
  */
 - (instancetype)initWithConsumerKey:(NSString *)consumerKey consumerSecret:(NSString *)consumerSecret;
+
+/**
+ Perform the whole authorization procedure (convenience method that encapsulates all steps)
+ */
+- (void)authorizeUserWithPresentingViewController:(UIViewController *)presentingViewController completionBlock:(void(^)(NSString *token, NSError *error))completionBlock;
+
 
 /**
  @name Request Factory

@@ -8,6 +8,7 @@
 
 #import "DTOAuthClient.h"
 #import "DTOAuthFunctions.h"
+#import "DTOAuthWebViewController.h"
 
 #import <CommonCrypto/CommonHMAC.h>
 
@@ -36,6 +37,8 @@
 	// token info stored as result of performing requests
 	NSString *_token;
 	NSString *_tokenSecret;
+
+    BOOL startedAuth;
 }
 
 #pragma mark - Initializer
@@ -477,5 +480,79 @@
 		}
 	}];
 }
+
+- (void)authorizeUserWithPresentingViewController:(UIViewController *)presentingViewController completionBlock:(void(^)(NSString *token, NSError *error))completionBlock {
+    if (startedAuth) {
+        // prevent doing it again returning from web view
+        return;
+    }
+    
+    __block NSError *recoverableError = nil;
+    
+    id authorizationCallback = ^(NSString *token, NSString *verifier, NSError *error) {
+        [presentingViewController dismissViewControllerAnimated:YES completion:NULL];
+        startedAuth = NO;
+        
+        if(error) {
+            completionBlock(nil, error);
+            return;
+            
+        } else if (self.version == OAuthVersion10a && [verifier length] == 0) {
+            NSDictionary *errorDictionary = @{NSLocalizedDescriptionKey:@"Authorization failed"};
+            NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:kDTOAuthVerificationFailed userInfo:errorDictionary];
+            completionBlock(nil, error);
+            
+        } else {
+            if ([token isEqualToString:self.token]) {
+                [self authorizeTokenWithVerifier:verifier completion:^(NSError *error) {
+                    if (error) {
+                        completionBlock(nil, error);
+                        return;
+                        
+                    } else {
+                        NSLog(@"Succesfully authentified with token %@", token);
+                        completionBlock(self.token, recoverableError);
+                    }
+                }];
+                
+            } else {
+                NSLog(@"Received authorization for token '%@' instead of requested token '%@", token, self.token);
+            }
+        }
+    };
+    
+    
+    [self requestTokenWithCompletion:^(NSError *error) {
+        if(error) {
+            if(error.code == kDTOAuthMissingCallbackError) {
+                // this is a recoverable error, let's store it for ulterior use and continue
+                recoverableError = error;
+                
+            } else {
+                completionBlock(nil, error);
+                return;
+            }
+        }
+        
+        if(self.token == nil) {
+            NSError *err = [NSError errorWithDomain:NSStringFromClass([self class]) code:kDTOAuthMissingTokenError userInfo:@{NSLocalizedDescriptionKey:@"No auth token"}];
+            completionBlock(nil, err);
+            return;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            DTOAuthWebViewController *webViewVC = [[DTOAuthWebViewController alloc] initWithAuthorizationCallback:authorizationCallback];
+            
+            NSURLRequest *request = [self userTokenAuthorizationRequest];
+            [webViewVC startAuthorizationFlowWithRequest:request];
+            
+            UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:webViewVC];
+            [presentingViewController presentViewController:navVC animated:YES completion:NULL];
+            
+            startedAuth = YES;
+        });
+    }];
+}
+
 
 @end
