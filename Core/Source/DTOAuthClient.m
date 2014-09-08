@@ -11,8 +11,6 @@
 
 #import <CommonCrypto/CommonHMAC.h>
 
-// callback URL is never seen by anybody, so we use this only internally
-#define CALL_BACK_URL @"http://www.whatever.org"
 
 @interface DTOAuthClient () // private properties
 
@@ -50,6 +48,7 @@
 	{
 		_consumerKey = [consumerKey copy];
 		_consumerSecret = [consumerSecret copy];
+        _callbackURLString = @"http://www.whatever.org"; // dummy callback used internally (unless another callback is specified in -setCallbackURL:)
 	}
 	
 	return self;
@@ -278,7 +277,7 @@
 	NSParameterAssert(requestTokenURL);
 	
 	// create authorized request
-	NSDictionary *extraParams = @{@"oauth_callback" : CALL_BACK_URL};
+	NSDictionary *extraParams = @{@"oauth_callback" : self.callbackURLString};
 	return [self _authorizedRequestWithURL:requestTokenURL extraParameters:extraParams];
 }
 
@@ -290,7 +289,7 @@
 	NSURL *userAuthorizeURL = [self userAuthorizeURL];
 	NSParameterAssert(userAuthorizeURL);
 	
-	NSString *callback = [self _urlEncodedString:CALL_BACK_URL];
+	NSString *callback = [self _urlEncodedString:self.callbackURLString];
 	NSString *str = [NSString stringWithFormat:@"%@?oauth_token=%@&oauth_callback=%@", [userAuthorizeURL absoluteString], _token, callback];
 	NSURL *url = [NSURL URLWithString:str];
 	
@@ -314,7 +313,7 @@
 	NSParameterAssert(accessTokenURL);
 	
 	// additional params
-	NSDictionary *params = @{@"oauth_callback" : CALL_BACK_URL,
+	NSDictionary *params = @{@"oauth_callback" : self.callbackURLString,
 									 @"oauth_verifier": verifier};
 	
 	return [self _authorizedRequestWithURL:accessTokenURL extraParameters:params];

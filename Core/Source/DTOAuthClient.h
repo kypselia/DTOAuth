@@ -96,4 +96,9 @@
  */
 @property (nonatomic, strong) NSURL *accessTokenURL;
 
+/**
+ If the server only replies to a specific callback URL, set it here (otherwise we'll just use a dummy callback)
+ */
+@property (nonatomic, strong) NSString *callbackURLString;
+
 @end
