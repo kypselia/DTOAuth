@@ -11,6 +11,11 @@
 #define kDTOAuthUnexpectedHTTPResponseError 3
 #define kDTOAuthMissingCallbackError 4
 
+typedef NS_ENUM(NSUInteger, OAuthVersion) {
+    OAuthVersion10,
+    OAuthVersion10a
+};
+
 /**
  Controller for an OAuth 1.0a flow with 3 legs.
  
@@ -70,6 +75,11 @@
 /**
  @name Properties
  */
+
+/** 
+ OAuth version (defaults to 1.0a)
+ */
+@property (nonatomic, assign) OAuthVersion version;
 
 /** 
  The most recent token. You can use this to check the authorized token returned by the web view.

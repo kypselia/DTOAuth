@@ -49,6 +49,7 @@
 		_consumerKey = [consumerKey copy];
 		_consumerSecret = [consumerSecret copy];
         _callbackURLString = @"http://www.whatever.org"; // dummy callback used internally (unless another callback is specified in -setCallbackURL:)
+        _version = OAuthVersion10a;
 	}
 	
 	return self;
@@ -306,15 +307,23 @@
 	NSParameterAssert(_token);
 	NSParameterAssert(_tokenSecret);
 	
-	// verifier must be present
-	NSParameterAssert(verifier);
+	// verifier must be present for 1.0a
+	if(self.version == OAuthVersion10a)
+	{
+		NSParameterAssert(verifier);
+	}
 	
 	NSURL *accessTokenURL = [self accessTokenURL];
 	NSParameterAssert(accessTokenURL);
 	
 	// additional params
-	NSDictionary *params = @{@"oauth_callback" : self.callbackURLString,
+	NSDictionary *params;
+    if(self.version == OAuthVersion10a) {
+		params = @{@"oauth_callback" : self.callbackURLString,
 									 @"oauth_verifier": verifier};
+	} else {
+		params = @{@"oauth_callback" : self.callbackURLString};
+	}
 	
 	return [self _authorizedRequestWithURL:accessTokenURL extraParameters:params];
 }
@@ -433,8 +442,6 @@
 		// according to spec this value must be present
 		if (![callbackConfirmation isEqualToString:@"true"])
 		{
-			[self _setToken:nil secret:nil];
-			
 			if (completion)
 			{
 				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : @"Missing callback confirmation in response"};
