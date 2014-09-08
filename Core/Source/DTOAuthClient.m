@@ -473,7 +473,7 @@
 		
 		if (completion)
 		{
-			completion(nil);
+			completion(error);
 		}
 	}];
 }
