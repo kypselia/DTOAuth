@@ -6,6 +6,11 @@
 //  Copyright (c) 2014 Cocoanetics. All rights reserved.
 //
 
+#define kDTOAuthHTTPStatusError 1
+#define kDTOAuthMissingTokenError 2
+#define kDTOAuthUnexpectedHTTPResponseError 3
+#define kDTOAuthMissingCallbackError 4
+
 /**
  Controller for an OAuth 1.0a flow with 3 legs.
  

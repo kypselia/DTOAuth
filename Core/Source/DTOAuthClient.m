@@ -354,7 +354,7 @@
 			if ([httpResponse statusCode]!=200)
 			{
 				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : s};
-				NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:1 userInfo:userInfo];
+				NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:kDTOAuthHTTPStatusError userInfo:userInfo];
 				
 				if (completion)
 				{
@@ -367,7 +367,7 @@
 		else
 		{
 			NSDictionary *userInfo = @{NSLocalizedDescriptionKey : @"Didn't receive expected HTTP response."};
-			NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:3 userInfo:userInfo];
+			NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:kDTOAuthUnexpectedHTTPResponseError userInfo:userInfo];
 			
 			if (completion)
 			{
@@ -389,7 +389,7 @@
 			if (completion)
 			{
 				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : @"Missing token info in response"};
-				NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:2 userInfo:userInfo];
+				NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:kDTOAuthMissingTokenError userInfo:userInfo];
 				completion(nil, error);
 			}
 			
@@ -438,7 +438,7 @@
 			if (completion)
 			{
 				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : @"Missing callback confirmation in response"};
-				NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:4 userInfo:userInfo];
+				NSError *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:kDTOAuthMissingCallbackError userInfo:userInfo];
 				completion(error);
 			}
 			
