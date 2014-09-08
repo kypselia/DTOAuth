@@ -1,9 +1,10 @@
 //
-//  WebViewController.m
-//  OAuthTest
+//  DTOAuthWebViewController.m
+//  DTOAuth
 //
 //  Created by Oliver Drobnik on 6/20/14.
 //  Copyright (c) 2014 Cocoanetics. All rights reserved.
+//  Copyright (c) 2014 Kypselia. All rights reserved.
 //
 
 #import "DTOAuthWebViewController.h"
